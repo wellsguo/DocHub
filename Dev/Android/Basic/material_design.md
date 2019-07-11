@@ -1,0 +1,16 @@
+![1](https://github.com/yechaoa/MaterialDesign/raw/master/gif/scrolling.gif)
+![2](https://github.com/yechaoa/MaterialDesign/raw/master/gif/scrolling_tab.gif)  
+![3](https://github.com/yechaoa/MaterialDesign/raw/master/gif/tab.gif)
+![4](https://github.com/yechaoa/MaterialDesign/raw/master/gif/navigation.gif)  
+![5](https://github.com/yechaoa/MaterialDesign/raw/master/gif/snackbar.gif)
+![6](https://github.com/yechaoa/MaterialDesign/raw/master/gif/text.gif)  
+![7](https://github.com/yechaoa/MaterialDesign/raw/master/gif/swipe.gif)
+![8](https://github.com/yechaoa/MaterialDesign/raw/master/gif/search_view.gif)  
+[Github](https://github.com/yechaoa/MaterialDesign)  
+[Link](https://blog.csdn.net/yechaoa/article/category/7228044)
+
+Material Design 学习资料[[1]](https://www.jianshu.com/p/5dfed8a3a017)
+[[2]](https://www.jianshu.com/p/40efd44802ef)
+[[3]](https://www.zhihu.com/question/36992060)
+[[4]](https://blog.csdn.net/allenwells/article/details/47906271)  
+

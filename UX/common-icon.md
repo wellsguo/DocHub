@@ -1,0 +1,23 @@
+常用图标
+
+- home 
+- settings
+- search
+- photo
+- qrcode
+- contacts
+- phone
+- password
+- security
+- cart
+- back
+- go
+- more
+- add
+- minus
+- notify
+- gallery
+- attachment
+- picture
+- favorite
+- life

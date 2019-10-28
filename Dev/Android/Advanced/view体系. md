@@ -1,0 +1,83 @@
+# Android View
+
+
+## 1. [View 体系](https://www.jianshu.com/p/397106c3b9ed)
+
+![](https://upload-images.jianshu.io/upload_images/635801-d581cc107fbbe156?imageMogr2/auto-orient/strip|imageView2/2/w/1200)
+
+Android 的每一个 Activity 都包含一个 Window 对象，实现类是 PhoneWindow，PhoneWindow 将一个 DecorView 设置为整个应用窗口的根 View。DecorView 是我们可以看到的顶层试图，里面封装一些窗口操作的通用方法，**所有 View 的监听事件，通过WindowManagerServie 进行接收**，并通过 Activity 对象来回到对应的ClickListener。
+
+DecorView 包含 TitleView 和 ContentView。TitleView 的实现是 ActionBar，ContentView 是一个 Framelayout，**setContentView()就是将调用PhoneWindow的方法setContentView方法**；
+
+
+## 2. 坐标系
+
+![](https://upload-images.jianshu.io/upload_images/4314926-5a5622b09f169490.png?imageMogr2/auto-orient/strip|imageView2/2/w/1079)
+
+## 3. 事件和响应
+
+### 3.1 MotionEvent 和 TouchSlop
+
+#### 3.1.1 MotionEvent
+
+- ACTION_DOWN 手指刚接触屏幕
+- ACTION_MOVE 手指在屏幕上移动
+- ACTION_UP 手指从屏幕抬起
+
+上面三种事件通过 MotionEvent 对象我们可以得到事件发生时的x和y坐标：  
+- getX(), getY() 返回相对于当前View的左上角的x和y坐标；
+- getRawX() ,getRawY() 获取相对于手机屏幕的左上角的x和y坐标
+
+### 3.1.2 TouchSlop 
+
+TouchuSlop 获取系统能识别的最小滑动距离，这是个常量和设备有关，在不同设备获取的值是不同的。
+
+获取方式：ViewConfiguration.get(getContext()).getScaledTouchSlop();
+
+### 3.2 VelocityTracker、GestureDetector、Scroller
+
+#### 3.3.1、VelocityTracker
+
+速度追踪，用于追踪滑动过程中的速度，包括水平和竖直速度。如下具体使用步骤：
+
+```
+速度 = （终点位置-起始位置）/ 时间段
+```
+
+#### 3.3.2、GestureDetector
+
+手势检测，用于辅助检测单击、滑动、长按、双击等手势。
+
+需要创建一个GestrueDecector 对象并实现GestureDetector.OnGestureListener接口，如果需要双击，则需实现GestureDetector.OnDoubleTapListener接口；
+
+
+图9
+
+然后在 onTouchEvent 接管目标View的onTouchEvent方法，在待监听的onTouchEvent方法中添加如下实现：
+
+
+图10
+
+listener实现
+
+
+图11
+
+GestureDetector 类中的 OnGestureListener 接口和 OnDoubleTapListener 接口相关实现方法说明：
+
+
+#### 3.3.3、Scroller
+
+弹性滑动对象，用于实现View的弹性滑动。当使用View的ScrollTo或者ScrollBy方法来进行滑动的时候，其过程是瞬间完成的，没有过渡效果和动画，体验是不太好的。
+
+使用Scroller是可以实现有过渡效果的滑动，其过程不是瞬间完成，而是在一定时间间隔完成的。Scroller本身无法让View弹性滑动，它需要和View的computeScroll方法配合才可以实现。代码如下：
+
+
+## 4. View 的滑动
+
+- a. scrollTo/scrollBy 移动内容   
+  scrollTo是基于所传递参数的绝对移动，而scrollBy是基于当前位置的相对移动；
+- b. 使用动画移动 View 本身
+- c. 改变View的布局参数
+
+

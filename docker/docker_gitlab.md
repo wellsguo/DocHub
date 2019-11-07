@@ -26,7 +26,7 @@ sudo docker run -d \
         -p 8888:80 \
         -p 8443:443 \
         -v /etc/localtime:/etc/localtime:ro \
-        -v  /home/work/ins/conf/gitlab:/etc/gitlab \
+        -v /home/work/ins/conf/gitlab:/etc/gitlab \
         -v /home/work/ins/logs/gitlab:/var/log/gitlab \
         -v /home/work/ins/data/gitlab/data:/var/opt/gitlab \
         -v /home/work/ins/data/gitlab/gitlab-rails:/opt/gitlab/embedded/service/gitlab-rails \
@@ -43,7 +43,7 @@ sudo docker run -d \
 
 输入分配的个人帐号和密码
 
-## 二、管理员用户登录基本操作jiaocheng
+## 二、管理员用户登录基本操作教程
 
 ### 1. 创建普通用户
 

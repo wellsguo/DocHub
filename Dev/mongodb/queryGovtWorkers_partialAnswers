@@ -1,0 +1,55 @@
+
+Q1: People complete info about people who have 7 children
+{'_id': ObjectId('5dc82e68ac786291561cf351'), 'pid': 3, 'firstName': 'William', 'MI': 'W', 'lastName': 'Brown', 'state': 'TX', 'age': 75, 'birth': 1944, 'salary': 95632, 'numChildren': 7, 'children': ['Victoria M Brown', 'John I Brown', 'Priya J Brown', 'Rahul G Brown', 'Michelle G Brown', 'Linda Y Brown', 'Jennifer B Brown'], 'weight': 130, 'height': 169}
+{'_id': ObjectId('5dc82e68ac786291561cf54f'), 'pid': 513, 'firstName': 'Ava', 'MI': 'K', 'lastName': 'Jackson', 'state': 'OR', 'age': 116, 'birth': 1903, 'salary': 117926, 'numChildren': 7, 'children': ['Michelle W Jackson', 'David A Jackson', 'Victoria M Jackson', 'Santiago P Jackson', 'Isabella H Jackson', 'Mohammed G Jackson', 'Amy I Jackson'], 'weight': 108, 'height': 194}
+{'_id': ObjectId('5dc82e68ac786291561cf5b2'), 'pid': 612, 'firstName': 'Kayla', 'MI': 'B', 'lastName': 'Wilson', 'state': 'SD', 'age': 83, 'birth': 1936, 'salary': 86543, 'numChildren': 7, 'children': ['Joseph Q Wilson', 'Julie A Wilson', 'David X Wilson', 'Paul A Wilson', 'Sofia O Wilson', 'Amy Z Wilson', 'Amy Z Wilson'], 'weight': 40, 'height': 193}
+... 12 lines deleted
+
+Q2: pid, state, and name of the children for people who have 7 children.  Do not include object ids
+{'pid': 3, 'state': 'TX', 'children': ['Victoria M Brown', 'John I Brown', 'Priya J Brown', 'Rahul G Brown', 'Michelle G Brown', 'Linda Y Brown', 'Jennifer B Brown']}
+{'pid': 513, 'state': 'OR', 'children': ['Michelle W Jackson', 'David A Jackson', 'Victoria M Jackson', 'Santiago P Jackson', 'Isabella H Jackson', 'Mohammed G Jackson', 'Amy I Jackson']}
+{'pid': 612, 'state': 'SD', 'children': ['Joseph Q Wilson', 'Julie A Wilson', 'David X Wilson', 'Paul A Wilson', 'Sofia O Wilson', 'Amy Z Wilson', 'Amy Z Wilson']}
+... 12 lines deleted
+
+Q3: People complete info of people who live in CA and have 6 children
+{'_id': ObjectId('5dc82e68ac786291561cf3f7'), 'pid': 169, 'firstName': 'Amit', 'MI': 'X', 'lastName': 'Lee', 'state': 'CA', 'age': 117, 'birth': 1902, 'salary': 61614, 'numChildren': 6, 'children': ['Sarah G Lee', 'Madison D Lee', 'Victoria O Lee', 'Isabella C Lee', 'William O Lee', 'Ava Q Lee'], 'weight': 114, 'height': 180}
+1
+
+Q4: Complete info of people who live in CA and have 5 or 6 children
+{'_id': ObjectId('5dc82e68ac786291561cf3f7'), 'pid': 169, 'firstName': 'Amit', 'MI': 'X', 'lastName': 'Lee', 'state': 'CA', 'age': 117, 'birth': 1902, 'salary': 61614, 'numChildren': 6, 'children': ['Sarah G Lee', 'Madison D Lee', 'Victoria O Lee', 'Isabella C Lee', 'William O Lee', 'Ava Q Lee'], 'weight': 114, 'height': 180}
+{'_id': ObjectId('5dc82e68ac786291561cf634'), 'pid': 742, 'firstName': 'Demarco', 'MI': 'Y', 'lastName': 'Jackson', 'state': 'CA', 'age': 84, 'birth': 1935, 'salary': 67539, 'numChildren': 5, 'children': ['Bob F Jackson', 'Daniella I Jackson', 'Peter U Jackson', 'Julie F Jackson', 'Neha J Jackson'], 'weight': 134, 'height': 191}
+... 2 lines deleted
+
+Q5: List the pid and children names for all people who have a child whose name contains 'Bob A'
+{'pid': 692, 'children': ['Bob A Chen', 'Linda P Chen', 'Madison Z Chen', 'Linda P Chen', 'Jennifer D Chen']}
+... 2 lines deleted
+
+Q6: Aggregation 5: number of poeple who have 0, 1, ... 8 children
+{'_id': 0, 'numInGroup': 80}
+{'_id': 1, 'numInGroup': 168}
+... 6 lines deleted
+
+Q7: Aggregation: avgerage salary for each state:
+{'_id': 'AK', 'avgSalary': 76457.3125, 'numInGroup': 32}
+{'_id': 'AL', 'avgSalary': 81709.26315789473, 'numInGroup': 38}
+{'_id': 'AR', 'avgSalary': 76775.82608695653, 'numInGroup': 46}
+... 47 lines deleted
+
+Q8: Aggregation: avgerage salary and how many people in the grouping for those living in state of CO:
+{'_id': 'CO', 'avgSalary': 82695.52380952382, 'numInGroup': 42}
+1
+
+Q9: Aggregation: average/min/max salary for midwest state, 
+where I am assuming there are 12 midwest states: {"ND","SD","NE","KS","MN","IA","MS","WI","IL","IN","MI","OH"}:
+{'_id': 'IA', 'avgSalary': 83429.84615384616, 'minSalary': 32606, 'maxSalary': 128314, 'numInGroup': 39}
+{'_id': 'IL', 'avgSalary': 74737.85294117648, 'minSalary': 31481, 'maxSalary': 114905, 'numInGroup': 34}
+... 10 lines deleted
+
+Q10: Aggregation: avgerage salary in states where the average salary within that state is >= 82,000 and how many people in the grouping for each state:
+{'_id': 'CO', 'avgSalary': 82695.52380952382, 'numInGroup': 42}
+{'_id': 'IA', 'avgSalary': 83429.84615384616, 'numInGroup': 39}
+... 14 lines deleted
+
+Q11: Aggregation: average/min/max salary for midwest state whose average salary > 82000:
+{'_id': 'IA', 'avgSalary': 83429.84615384616, 'minSalary': 32606, 'maxSalary': 128314, 'numInGroup': 39}
+... 3 lines deleted

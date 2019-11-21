@@ -5,7 +5,7 @@
 vim ~/.bashrc  
 export CLASS_PATH=./JAVA_HOME/lib:\$JAVA_HOME/jre/lib  
 source ~/.bashrc
-```  
+```
 
 2. 修改或配置系统的环境变量
 ```bash 
@@ -14,7 +14,8 @@ export CLASS_PATH=./JAVA_HOME/lib:\$JAVA_HOME/jre/lib
 source /etc/profile
 ```
 
-1. 临时修改环境变量
+3. 临时修改环境变量
+
 >export CLASS_PATH=./JAVA_HOME/lib:\$JAVA_HOME/jre/lib
 
 ### find指令
@@ -116,7 +117,8 @@ lichao@ubuntu:command\$ grep -n -R linux .
 HELLO WORLD
 ```
 
-1.  匹配多个字符串模式
+14. 匹配多个字符串模式
+
 >lichao@ubuntu:command\$ echo "This is a line." | grep -e "This" -e "is" -e "line" -o  
 This  
 is  

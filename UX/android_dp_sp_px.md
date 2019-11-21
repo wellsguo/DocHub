@@ -42,7 +42,7 @@ pixel，即像素，1px代表屏幕上的一个物理的像素点。但px单位�
 
 ![](http://7d9qiv.com2.z0.glb.qiniucdn.com/data/file/5/3/5/400535.jpg)
 
-```Latex
+```latex
 dpi = \dfrac{\sqrt{height^2 + width^2}}{size}
 ```
 > 此处似乎用错了概念吧，是不是应该是 ppi 啊？？
@@ -121,7 +121,7 @@ public class DensityUtil {
 }
 ```
 
---------------------- 
+---------------------
 作者：Donkor-   
 来源：CSDN   
 原文：https://blog.csdn.net/donkor_/article/details/77680042   

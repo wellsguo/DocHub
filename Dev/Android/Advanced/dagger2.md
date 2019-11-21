@@ -33,7 +33,7 @@ class Supplier {
 ```
 注解( Annotation )来标注目标类中所依赖的其他类，同样用注解来标注所依赖的其他类的构造函数，那注解的名字就叫 Inject。
 
-### 1. dagger2 组件
+### 1. dagger2 注解
 Inject / Component / Module / Provides
 
 #### 1.1 Inject

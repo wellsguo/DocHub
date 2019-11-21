@@ -1,4 +1,4 @@
-# [Android 项目重构之路:架构篇](http://keeganlee.me/post/android/20150605)
+# [xAndroid 项目重构之路:架构篇](http://keeganlee.me/post/android/20150605)
 
 > 作者：Keegan小钢
 
@@ -47,7 +47,7 @@
 > pageSize 则表示当前页最多对象数量，  
 > maxCount 表示对象数据总量，  
 > maxPage 表示总共有多少页。
- 
+
 
 根据此结构，Response 基本的定义如下：
 

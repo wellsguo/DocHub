@@ -1,0 +1,292 @@
+> uniapp之微信小程序开发教程（2）——如何合理使用WebSocket
+
+
+##  一、背景
+
+
+本章主讲uniapp微信小程序如何使用websocket，具体包括应该在哪里连接服务器、在哪里监听消息等等。本人目前正在开发的“不做鸽王”小程序由于用到了Websocket，对这方面的问题研究的比较多，在此分享以下我的经验，希望可以为遇到同样问题尚未解决的人提供解决思路。
+
+## 二、WebSocket接口有哪些？
+
+由于小程序和uniapp的接口基本一致，只是wx->uni，这里直接介绍uniapp中ws相关的接口。
+
+小程序推荐使用 `socketTask` 对象来管理多个 `ws` 连接，其创建方式如下：
+
+```js
+var socketTask = uni.connectSocket({
+	url: 'wss://www.example.com/socket', //仅为示例，并非真实接口地址。
+	complete: ()=> {}
+});
+```
+
+==注意== 
+
+如果没有传入 `success / fail / complete` 参数，则会返回封装后的 `Promise` 对象。
+一个小程序最多可以创建10个ws长连接，因此推荐使用socketTask对象自带的函数来管理每一个连接。
+
+socketTask 对象的函数包括：
+
+| 序号 | 函数名    | 功能                 |
+| ---- | --------- | -------------------- |
+| 1    | onMessage | 监听服务器发来的消息 |
+| 2    | send      | 发送消息             |
+| 3    | close     | 关闭连接             |
+| 4    | onOpen    | 监听连接已打开       |
+| 5    | onClose   | 监听连接关闭         |
+| 6    | onError   | 监听连接错误         |
+
+我们知道了这些接口，那么应该具体应该在哪里使用才合理呢？
+
+## 三、WebSocket实战
+
+### 3.1 小程序生命周期
+我们首先要了解微信小程序的生命周期，这部分可以直接去文档里查看，我就直接讲小程序打开到关闭经历的流程：（部分步骤可能缺漏，只讲主要）
+
+步骤 |	流程 |	对应周期	| 一次运行执行次数
+----| ----|  ---- | -----
+1	|App.vue中onLaunch()触发	|应用生命周期	|一次
+2	|App.vue中onShow()触发	|应用生命周期	|后台情况下可能多次
+3	|小程序首页的onLoad()触发	|页面生命周期	|一次
+4	|小程序首页的onShow()触发	|页面生命周期	|多次
+5	|小程序首页的onHide()触发	|页面生命周期	|多次
+6	|App.vue中onHide()触发	|应用生命周期	|后台情况下可能多次
+
+
+那么应该在哪里创建socketTask对象，在哪里监听？
+
+## 3.2 两种ws需求情况
+一般情况下，小程序是由多个页面构成的，那么这里就有两种情况：
+
+- 你的长连接返回的数据只是某一个页面需要用到，其他页面都没有用到；
+
+- 你的长连接返回的数据不止一个页面用到，而是多个页面，这种情况当然也可以包括第一种情况。
+
+  
+
+#### 3.2.1 单页面监听（局部监听）
+
+
+```javascript
+var socket = null;
+export default{
+	// ...
+	onShow(){
+		socket = uni.connectSocket({
+    		url: 'wss://www.example.com/socket', //仅为示例，并非真实接口地址。
+    		complete: ()=> {}
+		});
+		socket.onOpen(()=>{console.log('conn')});
+		socket.onMessage(res=>{
+      //...todo
+    });//获取服务器传来的数据，做相应处理
+		socket.onClose(()=>{console.log('close')});
+		socket.onError((err)=>{console.log(err)})
+	},
+	onHide(){
+		socket.close();
+	},
+  //  ...
+}
+```
+
+这样的效果是每次打开该页面，都会创建一个长连接，关闭该页面，都会关闭该连接。如果你希望始终使用一个长连接，那么你可以把onShow()中的部分移到onLoad()中，但是你需要把onHide()中的关闭连接事件删除。这样从第一次打开该页面开始，长连接就创建，此后始终保持，但是如果小程序进入后台，这个长连接就会自动断开，重新打开小程序，onLoad()事件没有触发创建连接，所以你需要在onShow()中做一个心跳重连监测。
+
+#### 3.2.2 多页面监听（全局监听）
+**在App.vue文件中**
+
+```javascript
+var socket = null;
+var launched = false;
+export default{
+	onLaunch(){
+		launched = true;
+		//创建socketSocket和监听ws代码
+	},
+	onShow(){
+		if(launched){
+			launched = false;
+		}else{
+			//创建socketSocket和监听ws代码
+		}
+	},
+	onHide(){
+		socket.close();
+	}
+}
+```
+
+效果是每次打开小程序都会创建连接，进入后台会关闭，再次打开重新创建。
+
+### 3.3 心跳重连
+
+websocket长连接有时会自动或者手动断开，因此在发消息前需要对连接状态进行判断。
+
+SocketTask 对象的 readyState 属性有四种状态，如下：
+
+| 状态值 | 表示       | 含义                       |
+| ------ | ---------- | -------------------------- |
+| 0      | connecting | 正在连接，连接未完成       |
+| 1      | opening    | 已连接，可以发送和接收消息 |
+| 2      | closing    | 正在关闭，还未完成         |
+| 3      | closed     | 已关闭                     |
+
+心跳重连是判断ws的状态，如果连接关闭，则重新连接，代码如下：
+
+```javascript
+var socket = null;
+
+//socket创建和监听
+function openWs(){
+	socket = uni.connectSocket({
+    	url: 'wss://www.example.com/socket', //仅为示例，并非真实接口地址。
+    	complete: ()=> {}
+	});
+	//监听等事件...
+}
+
+//监测连接，如果断开就重连
+function checkWs(){
+	//心跳重连
+	if([2,3].includes(socket.readyState)){//closing 或 closed
+		socket.close();
+		socket = null;
+		openWs();		
+	}
+}
+
+//可以每隔一定时间就监测一次
+var inter = setInterval(()=>{
+	checkWs();
+},60000);
+```
+
+
+
+有时我们在初始化一个页面的时候需要往服务器发一个登陆的消息，而往往这时候长连接还未创建完成，或者创建失败，我们需要做一个短时的监测，如下：
+
+```javascript
+var socket = null；
+var interval = null;
+openWs();//创建和监听socketTask
+
+function restartWs(){
+	socket.close();
+	socket = null;
+	openWs();
+}
+
+function init(){
+	if([2,3].includes(socket.readyState)){//closing 或 closed
+		restartWs();	
+		init();
+	}else if(socket.readyState == 0){// connecting，等待
+		interval = setInterval(()=>{
+			if(socket.readyState == 1){// opening
+				clearInterval(interval);
+				login();//登陆
+			}else if([2,3].includes(socket.readyState)){//连接失败
+				clearInterval(interval);
+				restartWs();	
+				init();
+			}
+		},200)
+	}else if(socket.readyState == 1){
+		login();
+	}
+}
+
+init();//初始化登陆
+```
+
+### 3.4 监听事件
+对于小程序中的socketTask.onMessage()的位置可是一个大学问。同样是由需求来决定的。以下分几种情况讨论：
+
+#### 3.4.1 局部监听
+局部监听的优势在于针对性强，只在某一个页面监听。离开页面连接只要关闭，监听事件也就会自动失效。基本结构如3.2.1中所示的结构。
+
+#### 3.4.2 全局监听
+全局监听方式有很多，关键的问题在于如何根据获取到的数据让页面可以重新渲染。局部监听的问题在于离开页面连接就得断开，这样如果多个页面需要监听同一个连接，就必须onhide断开，onshow连接，这里面会有微小的时间间隔无法接收消息，同时重连代价太大，耗费了等待的时间。
+
+而全局创建一个长连接，在应用进入后台或者退出时关闭连接，进入应用创建连接，代价小的多。同时可以保证在小程序打开的期间，没有遗漏后台发来的消息。当然，解决这个问题，也可以依靠和后台做交互，收到消息做个回复，没有收到回复说明没收到消息，下次连接可以重新发送这个消息。
+
+创建一个全局长连接，那么监听可以写在onShow或者onLaunch中，监听到的Message我们可以根据消息类型，改变Vuex中的状态，这个状态我们是可以全局也可以在局部监听到的。Vuex如何使用我就不在这里讲了，可以自行到官网查看。
+
+如果有全局用到的消息，我们就在App.vue中监听，如下：
+
+```javascript
+//App.vue
+import {
+	mapState,
+	mapMutations
+} from 'vuex';
+export default{
+	computed: {
+		...mapState(['receiveDate', 'receiveReply'])
+	},
+	watch: {
+		'receiveDate': function(newd, old) {
+			//可以存入缓存，也可以存入全局变量中
+		},
+		'receiveReply': function(newd, old) {
+			//可以存入缓存，也可以存入全局变量中
+		}
+	},
+	//...
+}
+```
+
+如果想在局部页面监听，写法有些不同。因为局部页面不能始终监听，需要在页面隐藏后移除监听，写法如下：
+
+```javascript
+//pages/index/index.vue
+import {
+	mapState,
+	mapMutations
+} from 'vuex';
+export default{
+	onShow(){
+		this.unwatch3 = this.$watch('returnOnlineUser', (newd, old) => {//创建监听
+			//todo...
+		})
+	},
+	onHide(){
+		this.unwatch3();//移除监听
+	},
+	computed(){
+		...mapState(['returnOnlineUser'])
+	}
+}
+```
+
+这样，我们可以对不同需求进行不同的设计监听，达到我们想要的效果。
+
+## 四、需要注意的几个地方
+
+关于小程序WebSocket开发遇到了挺多的坑，我写几个比较容易忽视的点：
+
+- **发布版必须是wss**: ws要升级为wss才能在发布后正常使用，小程序对网络协议要求必须是安全的。这就需要后台有ssl证书之类的。
+- **保证一个域名只有一个长连接**：关闭websocket之后再重新连接，这样可以保证始终只有一个长连接。如果上一个连接未关闭，就直接创建一个连接，那么这两个连接会同时存在，很可能会重复监听。而且小程序有 *<u>10 个长连接的上限</u>*，达到这个上限之后就无法创建新的连接了。因此，一定要做好连接的关闭。
+- **后台自动断开**：小程序进入后台，几秒钟后如果不主动关闭连接，这个连接也会自动断开，后台可以监测到这个连接已断开。
+- **监听位置很关键**：一定要弄清楚小程序页面的生命周期，你的socketTask是全局还是局部，监听写在哪里，都会影响整个使用。如果你在一个页面创建了socketTask，在这个页面的事件中对这个连接进行监听，那么这是局部监听，你跳转到另一个页面即使不关闭这个连接，这个连接也确实没有关闭，但是你无法监听这个连接，你无法接收到服务器传来的消息。所以如果你想要整个小程序打开后到关闭前都可以接收服务器传来的消息，你要创建一个全局的长连接。
+
+## 五、总结
+
+以上就是我一个多月以来对websocket的一些心得和经验。面对问题的时候很头大，其实都是被自己所学所限制。现在回头看感觉清晰很多。如果想了解更多小程序开发相关的文章，请继续关注。谢谢！
+
+
+
+> 版权声明：本文为CSDN博主「HouGISer」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
+> 原文链接：https://blog.csdn.net/lyandgh/java/article/details/100642941
+
+
+
+## 思考
+
+如果在App.vue中初始化全局socket，但登录时无法火车号和用户的手机号？
+
+如何在pages/login中完成socket连接的创建?
+
+通过vuex在其他页面中监听socket？但何时关闭 socket 呢？在哪一个页面中关闭呢？
+
+
+
